@@ -6,4 +6,5 @@ venv/
 .env
 .vscode/
 data/contactos.txt
+data/contactos.xlsx
 

@@ -10,7 +10,7 @@ Crear una aplicación de consola en Python para gestionar contactos.
 - Eliminar contactos por nombre exacto, con confirmación `s/n`.
 - Mostrar todos los contactos en orden alfabético (A-Z, sin distinguir mayúsculas).
 - Mostrar todos los contactos en orden alfabético inverso (Z-A).
-- Guardar y cargar contactos automáticamente desde un fichero de texto.
+- Guardar y cargar contactos automáticamente desde una hoja de cálculo.
 
 ## Reglas de validación
 - El nombre no puede estar vacío.
@@ -18,11 +18,13 @@ Crear una aplicación de consola en Python para gestionar contactos.
 - No se permiten dos contactos con el mismo nombre exacto.
 
 ## Formato de datos
-- Fichero: `data/contactos.txt`.
-- Cada línea es un contacto: `nombre;telefono`.
-- Ejemplo: `Ana;612345678`.
+- Fichero: `data/contactos.xlsx` (rama `con-excel`).
+- Hoja `Contactos`, cabecera `A1=Nombre | B1=Telefono`.
+- Desde la fila 2: un contacto por fila.
+- Ejemplo: fila `Ana | 612345678`.
+- Los teléfonos se guardan como texto para no perder `+` ni ceros.
 - Si el fichero no existe, se empieza con agenda vacía.
-- Si una línea no tiene `;`, se ignora y se avisa.
+- Si una fila tiene nombre vacío o teléfono no válido, se ignora y se avisa.
 
 ## Restricciones didácticas
 - Programación estructurada.
@@ -33,7 +35,7 @@ Crear una aplicación de consola en Python para gestionar contactos.
 ## Estructura
 - `src/`: código del programa (`src/agenda.py`).
 - `tests/`: pruebas automáticas.
-- `data/`: datos de ejecución (`contactos.txt` ignorado, `contactos_ejemplo.txt` de ejemplo).
+- `data/`: datos de ejecución (`contactos.xlsx` ignorado, `contactos_ejemplo.xlsx` de ejemplo).
 - `docs/`: documentación adicional.
 
 ## Ejecución
@@ -45,4 +47,5 @@ python -m src.agenda
 ```bash
 pytest
 ```
-- Solo depende de `pytest` (ver `requirements.txt`).
+- Necesita `pytest` y `openpyxl` (ver `requirements.txt`).
+- Usa el entorno local: `.venv/bin/python -m pytest`.

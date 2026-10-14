@@ -1,9 +1,14 @@
-"""Pruebas de la agenda telefónica v1."""
+"""Pruebas de la agenda telefónica v1 (rama con-excel)."""
 
 import os
 import tempfile
 
+from openpyxl import Workbook, load_workbook
+
 from src.agenda import (
+    CABECERA_NOMBRE,
+    CABECERA_TELEFONO,
+    NOMBRE_HOJA,
     anadir_contacto,
     buscar_por_nombre,
     buscar_por_numero,
@@ -75,16 +80,36 @@ def test_ordenar():
 def test_guardar_y_cargar():
     contactos = [{"nombre": "Ana", "telefono": "111"}]
     with tempfile.TemporaryDirectory() as tmp:
-        ruta = os.path.join(tmp, "contactos.txt")
+        ruta = os.path.join(tmp, "contactos.xlsx")
         guardar_contactos(contactos, ruta)
         cargados = cargar_contactos(ruta)
         assert cargados == contactos
 
 
-def test_cargar_ignora_lineas_malas():
+def test_guardar_crea_cabecera():
     with tempfile.TemporaryDirectory() as tmp:
-        ruta = os.path.join(tmp, "contactos.txt")
-        with open(ruta, "w", encoding="utf-8") as f:
-            f.write("Ana;111\nsin-separador\n;222\n")
+        ruta = os.path.join(tmp, "contactos.xlsx")
+        guardar_contactos([{"nombre": "Ana", "telefono": "111"}], ruta)
+        libro = load_workbook(ruta)
+        assert NOMBRE_HOJA in libro.sheetnames
+        hoja = libro[NOMBRE_HOJA]
+        assert hoja["A1"].value == CABECERA_NOMBRE
+        assert hoja["B1"].value == CABECERA_TELEFONO
+        assert hoja["A2"].value == "Ana"
+        assert str(hoja["B2"].value) == "111"
+
+
+def test_cargar_ignora_filas_malas():
+    with tempfile.TemporaryDirectory() as tmp:
+        ruta = os.path.join(tmp, "contactos.xlsx")
+        libro = Workbook()
+        hoja = libro.active
+        hoja.title = NOMBRE_HOJA
+        hoja["A1"] = CABECERA_NOMBRE
+        hoja["B1"] = CABECERA_TELEFONO
+        hoja.append(["Ana", "111"])
+        hoja.append(["", "222"])
+        hoja.append(["Luis", "abc"])
+        libro.save(ruta)
         cargados = cargar_contactos(ruta)
         assert cargados == [{"nombre": "Ana", "telefono": "111"}]

@@ -1,14 +1,18 @@
-"""Agenda telefónica v1.
+"""Agenda telefónica v1 (rama con-excel).
 
 Programa de consola para gestionar contactos.
 Cada contacto tiene nombre y teléfono.
-Los datos se guardan en un fichero de texto con formato: nombre;telefono.
+Los datos se guardan en una hoja de cálculo: data/contactos.xlsx.
 """
 
 import os
 
-RUTA_DATOS = "data/contactos.txt"
-SEPARADOR = ";"
+from openpyxl import Workbook, load_workbook
+
+RUTA_DATOS = "data/contactos.xlsx"
+NOMBRE_HOJA = "Contactos"
+CABECERA_NOMBRE = "Nombre"
+CABECERA_TELEFONO = "Telefono"
 
 
 def telefono_es_valido(telefono):
@@ -76,40 +80,51 @@ def ordenar_contactos(contactos, inverso=False):
 
 
 def cargar_contactos(ruta=RUTA_DATOS):
-    """Carga los contactos desde el fichero. Si no existe, devuelve lista vacía."""
+    """Carga los contactos desde la hoja de cálculo. Si no existe, devuelve lista vacía."""
     contactos = []
     if not os.path.exists(ruta):
         return contactos
-    with open(ruta, "r", encoding="utf-8") as fichero:
-        for linea in fichero:
-            linea = linea.strip()
-            if linea == "":
-                continue
-            if SEPARADOR not in linea:
-                print("Aviso: línea ignorada: " + linea)
-                continue
-            partes = linea.split(SEPARADOR)
-            if len(partes) != 2:
-                print("Aviso: línea ignorada: " + linea)
-                continue
-            nombre = partes[0].strip()
-            telefono = partes[1].strip()
-            if nombre == "" or not telefono_es_valido(telefono):
-                print("Aviso: línea ignorada: " + linea)
-                continue
-            contactos.append({"nombre": nombre, "telefono": telefono})
+    libro = load_workbook(ruta)
+    if NOMBRE_HOJA not in libro.sheetnames:
+        print("Aviso: hoja no encontrada: " + NOMBRE_HOJA)
+        return contactos
+    hoja = libro[NOMBRE_HOJA]
+    primera = True
+    for fila in hoja.iter_rows(values_only=True):
+        if primera:
+            primera = False
+            continue
+        if fila is None:
+            continue
+        nombre = fila[0] if len(fila) > 0 else None
+        telefono = fila[1] if len(fila) > 1 else None
+        if nombre is None and telefono is None:
+            continue
+        nombre = str(nombre).strip() if nombre is not None else ""
+        telefono = str(telefono).strip() if telefono is not None else ""
+        if nombre == "" or not telefono_es_valido(telefono):
+            print("Aviso: fila ignorada: " + nombre + ";" + telefono)
+            continue
+        contactos.append({"nombre": nombre, "telefono": telefono})
     return contactos
 
 
 def guardar_contactos(contactos, ruta=RUTA_DATOS):
-    """Guarda los contactos en el fichero con formato nombre;telefono."""
+    """Guarda los contactos en la hoja de cálculo con cabecera Nombre/Telefono."""
     carpeta = os.path.dirname(ruta)
     if carpeta != "" and not os.path.exists(carpeta):
         os.makedirs(carpeta)
-    with open(ruta, "w", encoding="utf-8") as fichero:
-        for contacto in contactos:
-            linea = contacto["nombre"] + SEPARADOR + contacto["telefono"] + "\n"
-            fichero.write(linea)
+    libro = Workbook()
+    hoja = libro.active
+    hoja.title = NOMBRE_HOJA
+    hoja["A1"] = CABECERA_NOMBRE
+    hoja["B1"] = CABECERA_TELEFONO
+    fila_numero = 2
+    for contacto in contactos:
+        hoja.cell(row=fila_numero, column=1, value=contacto["nombre"]).number_format = "@"
+        hoja.cell(row=fila_numero, column=2, value=contacto["telefono"]).number_format = "@"
+        fila_numero = fila_numero + 1
+    libro.save(ruta)
 
 
 def mostrar_contactos(contactos, inverso=False):

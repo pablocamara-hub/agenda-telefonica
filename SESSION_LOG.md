@@ -33,3 +33,23 @@ Resolver incoherencias e implementar la v1 aprobada.
 ### Pendiente
 - Instalar `pytest` y ejecutar las 9 pruebas. Primer commit Git.
 
+## Sesión 3 - 2026-10-13 (rama con-excel)
+### Objetivo
+Mismo programa, pero guardando en hoja de cálculo con `openpyxl`.
+
+### Realizado
+- Creado `.venv` local con `pip` y librerías `openpyxl` + `pytest` solo dentro del proyecto.
+- Migrado `src/agenda.py`: constantes `RUTA_DATOS=data/contactos.xlsx`, `NOMBRE_HOJA=Contactos`.
+- `cargar_contactos` lee filas desde la 2, ignora nombre vacío o teléfono no válido.
+- `guardar_contactos` escribe cabecera `Nombre/Telefono` y teléfonos como texto.
+- `requirements.txt` con `pytest` + `openpyxl` (justificado: Python no lee `.xlsx` solo).
+- `tests/test_agenda.py`: 10 pruebas (7 de lógica + guardar/cargar + cabecera + filas malas).
+- `.gitignore` ignora `data/contactos.xlsx`. `README.md`, `TODO.md`, `CHANGELOG.md` actualizados.
+
+### Comprobaciones
+- `.venv/bin/python -m pytest -q`: 10 passed.
+- `guardar_contactos` + `cargar_contactos` con `data/contactos_ejemplo.xlsx`: OK (Ana, Luis).
+
+### Pendiente
+- Ninguno en esta rama. `main` sigue intacto con `.txt`.
+

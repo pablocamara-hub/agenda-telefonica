@@ -1,7 +1,11 @@
  # Plan y tareas
 
-## En curso
-- [x] Acordar el plan de la versión 1.
+## En curso (rama con-excel)
+- [x] Crear `.venv` local e instalar `openpyxl` + `pytest` solo dentro del proyecto.
+- [x] Migrar `src/agenda.py` a `data/contactos.xlsx` (hoja `Contactos`).
+- [x] Actualizar `tests/test_agenda.py` a Excel (10 pruebas).
+- [x] Ejecutar `.venv/bin/python -m pytest` y prueba manual.
+- [x] Crear `data/contactos_ejemplo.xlsx` y hacer commit en `con-excel`.
 
 ## Pendientes
 - [ ] Instalar `pytest` y ejecutar `tests/test_agenda.py` (no disponible en este equipo).
